@@ -24,15 +24,15 @@ int main(int argc, char *argv[]) {
   int option;
   int option_index = 0;
 
-	bool showPerNumber = false;
+  bool showPerNumber = false;
 
   while ((option = getopt_long(argc, argv, "p", long_options, &option_index)) !=
          -1) {
-		switch (option) {
-			case 'p':
-				showPerNumber = true;
-				break;
-		}
+    switch (option) {
+    case 'p':
+      showPerNumber = true;
+      break;
+    }
   }
 
   Board board = readBoard();
