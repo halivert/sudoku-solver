@@ -14,8 +14,8 @@ Board readBoard();
 void printBoard(Board);
 void printBoard(Board, char);
 pair<bool, Board> solve(Board);
-bool isValid(Board);
-pair<int, int> firstZero(Board);
+bool isValid(Board &);
+pair<int, int> firstZero(Board &);
 
 int main(int argc, char *argv[]) {
   static struct option long_options[] = {{"per-number", no_argument, 0, 'p'},
@@ -132,7 +132,7 @@ pair<bool, Board> solve(Board board) {
   return (valids.size() >= 1) ? pair(true, valids[0]) : pair(false, board);
 }
 
-bool isValid(Board board) {
+bool isValid(Board &board) {
   int nums[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   for (int i = 0; i < BOARD_SIZE; i++) {
@@ -196,7 +196,7 @@ bool isValid(Board board) {
   return true;
 }
 
-pair<int, int> firstZero(Board board) {
+pair<int, int> firstZero(Board &board) {
   for (int row = 0; row < BOARD_SIZE; row++)
     for (int column = 0; column < BOARD_SIZE; column++)
       if (board[row][column] == ZERO)
