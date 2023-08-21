@@ -1,5 +1,6 @@
+#include <getopt.h>
 #include <stdio.h>
-#include <utility>
+#include <unistd.h>
 #include <vector>
 
 using std::pair, std::vector;
@@ -11,12 +12,36 @@ typedef vector<vector<char>> Board;
 
 Board readBoard();
 void printBoard(Board);
+void printBoard(Board, char);
 pair<bool, Board> solve(Board);
 bool isValid(Board);
 pair<int, int> firstZero(Board);
 
-int main() {
+int main(int argc, char *argv[]) {
+  static struct option long_options[] = {{"per-number", no_argument, 0, 'p'},
+                                         {0, 0, 0, 0}};
+
+  int option;
+  int option_index = 0;
+
+	bool showPerNumber = false;
+
+  while ((option = getopt_long(argc, argv, "p", long_options, &option_index)) !=
+         -1) {
+		switch (option) {
+			case 'p':
+				showPerNumber = true;
+				break;
+		}
+  }
+
   Board board = readBoard();
+
+  if (!isValid(board)) {
+    printf("Initial board is not valid");
+    return 1;
+  }
+
   printBoard(board);
 
   pair<bool, Board> solved = solve(board);
@@ -27,8 +52,16 @@ int main() {
     return 1;
   }
 
-  printf("Solved!\n");
+  printf("\nSolved!\n");
   printBoard(solved.second);
+
+  if (showPerNumber) {
+    printf("\nPer number\n");
+    for (int i = 0; i < BOARD_SIZE; i++) {
+      printBoard(solved.second, i + '1');
+    }
+  }
+
   return 0;
 }
 
@@ -38,29 +71,48 @@ Board readBoard() {
   for (int row = 0; row < BOARD_SIZE; row++) {
     for (int column = 0; column < BOARD_SIZE; column++) {
       scanf("%c%c", &board[row][column], &sp);
+      if (sp != ' ' && sp != '\n') {
+        board[row][++column] = sp;
+      }
     }
   }
   return board;
 }
 
 void printBoard(Board board) {
+  printf("_______________________\n");
   for (int row = 0; row < BOARD_SIZE; row++) {
     for (int column = 0; column < BOARD_SIZE; column++) {
-      if (column == 0) {
-        printf("[");
-      }
+      char number = board[row][column];
 
-      printf("%c", board[row][column]);
+      printf("%c", number != '0' ? number : '_');
 
-      if (column < BOARD_SIZE - 1) {
+      if (!((column + 1) % 3)) {
+        printf(" | ");
+      } else if (column < BOARD_SIZE - 1) {
         printf(" ");
       }
 
       if (column == BOARD_SIZE - 1) {
-        printf("]\n");
+        printf("\n");
+      }
+    }
+
+    if (!((row + 1) % 3))
+      printf("_______________________\n");
+  }
+}
+
+void printBoard(Board board, char num) {
+  for (vector<char> &row : board) {
+    for (char &c : row) {
+      if (c != num) {
+        c = '0';
       }
     }
   }
+
+  printBoard(board);
 }
 
 pair<bool, Board> solve(Board board) {
