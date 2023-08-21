@@ -1,51 +1,49 @@
 #include <stdio.h>
 #include <utility>
+#include <vector>
 
-using std::pair;
+using std::pair, std::vector;
 
 const int BOARD_SIZE = 9;
 const char ZERO = '0';
 
-void readBoard(char[][BOARD_SIZE]);
-void printBoard(char[][BOARD_SIZE]);
-bool solve(char[][BOARD_SIZE]);
-bool isValid(char[][BOARD_SIZE]);
-pair<int, int> firstZero(char[][BOARD_SIZE]);
+typedef vector<vector<char>> Board;
+
+Board readBoard();
+void printBoard(Board);
+pair<bool, Board> solve(Board);
+bool isValid(Board);
+pair<int, int> firstZero(Board);
 
 int main() {
-  char board[BOARD_SIZE][BOARD_SIZE] = {
-      {0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-  readBoard(board);
+  Board board = readBoard();
   printBoard(board);
 
-  bool solved = solve(board);
+  pair<bool, Board> solved = solve(board);
 
-  if (!solved) {
+  if (!solved.first) {
     printf("Cannot solve\n");
     printBoard(board);
     return 1;
   }
 
   printf("Solved!\n");
-  printBoard(board);
+  printBoard(solved.second);
   return 0;
 }
 
-void readBoard(char board[][BOARD_SIZE]) {
+Board readBoard() {
+  Board board(BOARD_SIZE, vector<char>(BOARD_SIZE, '0'));
   char sp;
   for (int row = 0; row < BOARD_SIZE; row++) {
     for (int column = 0; column < BOARD_SIZE; column++) {
       scanf("%c%c", &board[row][column], &sp);
     }
   }
+  return board;
 }
 
-void printBoard(char board[][BOARD_SIZE]) {
+void printBoard(Board board) {
   for (int row = 0; row < BOARD_SIZE; row++) {
     for (int column = 0; column < BOARD_SIZE; column++) {
       if (column == 0) {
@@ -65,25 +63,33 @@ void printBoard(char board[][BOARD_SIZE]) {
   }
 }
 
-bool solve(char board[][BOARD_SIZE]) {
+pair<bool, Board> solve(Board board) {
   if (!isValid(board)) {
-    return false;
+    return pair(false, board);
   }
 
   pair<int, int> fz = firstZero(board);
 
   if (fz.first == -1 && fz.second == -1) {
-    return isValid(board);
+    return pair(isValid(board), board);
   }
+
+  vector<Board> valids;
 
   for (int i = 0; i < BOARD_SIZE; i++) {
     board[fz.first][fz.second] = i + '1';
+    if (!isValid(board))
+      continue;
+
+    pair<bool, Board> solved = solve(board);
+    if (solved.first)
+      valids.push_back(solved.second);
   }
 
-  return false;
+  return (valids.size() >= 1) ? pair(true, valids[0]) : pair(false, board);
 }
 
-bool isValid(char board[][BOARD_SIZE]) {
+bool isValid(Board board) {
   int nums[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   for (int i = 0; i < BOARD_SIZE; i++) {
@@ -159,7 +165,7 @@ bool isValid(char board[][BOARD_SIZE]) {
   return true;
 }
 
-pair<int, int> firstZero(char board[][BOARD_SIZE]) {
+pair<int, int> firstZero(Board board) {
   pair<int, int> result = pair(-1, -1);
 
   for (int row = 0; row < BOARD_SIZE; row++) {
