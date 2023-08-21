@@ -1,14 +1,14 @@
 #include <getopt.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <vector>
 
 using std::pair, std::vector;
 
+typedef vector<char> Row;
+typedef vector<Row> Board;
+
 const int BOARD_SIZE = 9;
 const char ZERO = '0';
-
-typedef vector<vector<char>> Board;
 
 Board readBoard();
 void printBoard(Board);
@@ -57,25 +57,23 @@ int main(int argc, char *argv[]) {
 
   if (showPerNumber) {
     printf("\nPer number\n");
-    for (int i = 0; i < BOARD_SIZE; i++) {
+    for (int i = 0; i < BOARD_SIZE; i++)
       printBoard(solved.second, i + '1');
-    }
   }
 
   return 0;
 }
 
 Board readBoard() {
-  Board board(BOARD_SIZE, vector<char>(BOARD_SIZE, '0'));
+  Board board(BOARD_SIZE, Row(BOARD_SIZE, '0'));
   char sp;
-  for (int row = 0; row < BOARD_SIZE; row++) {
+  for (int row = 0; row < BOARD_SIZE; row++)
     for (int column = 0; column < BOARD_SIZE; column++) {
       scanf("%c%c", &board[row][column], &sp);
-      if (sp != ' ' && sp != '\n') {
+      if (sp != ' ' && sp != '\n')
         board[row][++column] = sp;
-      }
     }
-  }
+
   return board;
 }
 
@@ -87,15 +85,13 @@ void printBoard(Board board) {
 
       printf("%c", number != '0' ? number : '_');
 
-      if (!((column + 1) % 3)) {
+      if (!((column + 1) % 3))
         printf(" | ");
-      } else if (column < BOARD_SIZE - 1) {
+      else if (column < BOARD_SIZE - 1)
         printf(" ");
-      }
 
-      if (column == BOARD_SIZE - 1) {
+      if (column == BOARD_SIZE - 1)
         printf("\n");
-      }
     }
 
     if (!((row + 1) % 3))
@@ -104,27 +100,22 @@ void printBoard(Board board) {
 }
 
 void printBoard(Board board, char num) {
-  for (vector<char> &row : board) {
-    for (char &c : row) {
-      if (c != num) {
+  for (vector<char> &row : board)
+    for (char &c : row)
+      if (c != num)
         c = '0';
-      }
-    }
-  }
 
   printBoard(board);
 }
 
 pair<bool, Board> solve(Board board) {
-  if (!isValid(board)) {
+  if (!isValid(board))
     return pair(false, board);
-  }
 
   pair<int, int> fz = firstZero(board);
 
-  if (fz.first == -1 && fz.second == -1) {
+  if (fz.first == -1 && fz.second == -1)
     return pair(isValid(board), board);
-  }
 
   vector<Board> valids;
 
@@ -154,12 +145,8 @@ bool isValid(Board board) {
           continue;
 
         nums[item - '1']++;
-      }
-
-      for (int j = 0; j < BOARD_SIZE; j++) {
-        if (nums[j] > 1) {
+        if (nums[item - '1'] > 1)
           return false;
-        }
       }
 
       for (int j = 0; j < BOARD_SIZE; nums[j++] = 0)
@@ -175,12 +162,8 @@ bool isValid(Board board) {
           continue;
 
         nums[item - '1']++;
-      }
-
-      for (int j = 0; j < BOARD_SIZE; j++) {
-        if (nums[j] > 1) {
+        if (nums[item - '1'] > 1)
           return false;
-        }
       }
 
       for (int j = 0; j < BOARD_SIZE; nums[j++] = 0)
@@ -201,12 +184,8 @@ bool isValid(Board board) {
           continue;
 
         nums[item - '1']++;
-      }
-
-      for (int j = 0; j < BOARD_SIZE; j++) {
-        if (nums[j] > 1) {
+        if (nums[item - '1'] > 1)
           return false;
-        }
       }
 
       for (int j = 0; j < BOARD_SIZE; nums[j++] = 0)
@@ -218,17 +197,10 @@ bool isValid(Board board) {
 }
 
 pair<int, int> firstZero(Board board) {
-  pair<int, int> result = pair(-1, -1);
+  for (int row = 0; row < BOARD_SIZE; row++)
+    for (int column = 0; column < BOARD_SIZE; column++)
+      if (board[row][column] == ZERO)
+        return pair(row, column);
 
-  for (int row = 0; row < BOARD_SIZE; row++) {
-    for (int column = 0; column < BOARD_SIZE; column++) {
-      if (board[row][column] == ZERO) {
-        result.first = row;
-        result.second = column;
-        return result;
-      }
-    }
-  }
-
-  return result;
+  return pair(-1, -1);
 }
